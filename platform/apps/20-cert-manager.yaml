@@ -6,6 +6,14 @@ metadata:
   annotations: {argocd.argoproj.io/sync-wave: "-1"}
 spec:
   project: platform
+  # cert-manager's cainjector writes the webhook CA into this object after install, so it never
+  # matches Git. Ignoring just that field stops a permanent, harmless OutOfSync.
+  ignoreDifferences:
+    - group: admissionregistration.k8s.io
+      kind: ValidatingWebhookConfiguration
+      name: cert-manager-webhook
+      jqPathExpressions:
+        - .webhooks[]?.clientConfig.caBundle
   source:
     repoURL: https://charts.jetstack.io
     chart: cert-manager
