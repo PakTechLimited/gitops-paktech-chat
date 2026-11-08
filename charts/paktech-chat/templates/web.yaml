@@ -22,6 +22,7 @@ spec:
     metadata:
       labels: {app: web}
     spec:
+      enableServiceLinks: false
       securityContext:
         runAsNonRoot: true
         runAsUser: 1001
