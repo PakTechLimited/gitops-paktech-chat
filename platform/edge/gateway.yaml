@@ -6,7 +6,7 @@ metadata:
   name: paktech-gateway
   namespace: edge
   annotations:
-    cert-manager.io/cluster-issuer: letsencrypt-staging   # switch to letsencrypt-prod after the first success
+    cert-manager.io/cluster-issuer: letsencrypt-prod   # switch to letsencrypt-prod after the first success
 spec:
   gatewayClassName: paktech
   listeners:
