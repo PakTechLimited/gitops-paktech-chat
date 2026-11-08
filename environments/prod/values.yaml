@@ -1,0 +1,13 @@
+env: prod
+host: paktechlimited.chat
+gatewayListener: https-apex
+azure:
+  secretPrefix: prod
+image:
+  api: {tag: REPLACE_WITH_IMAGE_TAG}
+  web: {tag: REPLACE_WITH_IMAGE_TAG}
+api:
+  replicas: 2
+  autoscaling: {enabled: true, minReplicas: 2, maxReplicas: 3, targetCPUUtilizationPercentage: 70}
+web:
+  replicas: 2

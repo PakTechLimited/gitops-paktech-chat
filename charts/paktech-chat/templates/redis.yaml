@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  labels: {{- include "pc.labels" . | nindent 4 }}
+  annotations: {argocd.argoproj.io/sync-wave: "0"}
+spec:
+  selector: {app: redis}
+  ports: [{name: redis, port: 6379}]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+  labels: {{- include "pc.labels" . | nindent 4 }}
+  annotations: {argocd.argoproj.io/sync-wave: "0"}
+spec:
+  replicas: 1
+  selector:
+    matchLabels: {app: redis}
+  template:
+    metadata:
+      labels: {app: redis}
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 999
+        seccompProfile: {type: RuntimeDefault}
+      containers:
+        - name: redis
+          image: {{ .Values.redis.image }}
+          args: ["--save", "", "--appendonly", "no"]   # cache, Pub/Sub and rate limits only; nothing to persist
+          ports: [{name: redis, containerPort: 6379}]
+          readinessProbe:
+            exec: {command: [redis-cli, ping]}
+            periodSeconds: 5
+          resources: {{- toYaml .Values.redis.resources | nindent 12 }}
+          {{- include "pc.containerSecurity" . | nindent 10 }}

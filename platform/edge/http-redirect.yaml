@@ -1,0 +1,29 @@
+# Everything that arrives on port 80 is sent to HTTPS. The ACME challenge route created by
+# cert-manager has a more specific path, so Gateway API gives it priority over this rule.
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: http-to-https
+  namespace: edge
+spec:
+  parentRefs:
+    - {name: paktech-gateway, sectionName: http}
+  rules:
+    - filters:
+        - type: RequestRedirect
+          requestRedirect: {scheme: https, statusCode: 301}
+---
+# www.paktechlimited.chat has a certificate (Gateway listener https-www) but no app; send it to the apex.
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: www-to-apex
+  namespace: edge
+spec:
+  parentRefs:
+    - {name: paktech-gateway, sectionName: https-www}
+  hostnames: [www.paktechlimited.chat]
+  rules:
+    - filters:
+        - type: RequestRedirect
+          requestRedirect: {hostname: paktechlimited.chat, statusCode: 301}

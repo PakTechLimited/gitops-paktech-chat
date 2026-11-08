@@ -1,0 +1,8 @@
+env: dev
+host: dev.paktechlimited.chat
+gatewayListener: https-dev
+azure:
+  secretPrefix: dev
+image:
+  api: {tag: 59d1bbc}    # Phase 4 CI rewrites these two lines on every merge
+  web: {tag: 59d1bbc}

@@ -1,0 +1,33 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: platform
+  namespace: argocd
+  annotations: {argocd.argoproj.io/sync-wave: "-3"}
+spec:
+  description: Cluster add-ons (gateway, certificates, edge config)
+  sourceRepos:
+    - https://github.com/PakTechLimited/gitops-paktech-chat.git
+    - https://charts.jetstack.io
+    - docker.io/envoyproxy
+  destinations:
+    - {server: https://kubernetes.default.svc, namespace: "*"}
+  clusterResourceWhitelist:
+    - {group: "*", kind: "*"}
+---
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: paktech-chat
+  namespace: argocd
+  annotations: {argocd.argoproj.io/sync-wave: "-3"}
+spec:
+  description: PakTech Chat environments (dev, staging, prod)
+  sourceRepos:
+    - https://github.com/PakTechLimited/gitops-paktech-chat.git
+  destinations:
+    - {server: https://kubernetes.default.svc, namespace: paktech-chat-dev}
+    - {server: https://kubernetes.default.svc, namespace: paktech-chat-staging}
+    - {server: https://kubernetes.default.svc, namespace: paktech-chat-prod}
+  clusterResourceWhitelist:
+    - {group: "", kind: Namespace}      # apps may create only their own namespace, nothing else cluster-wide

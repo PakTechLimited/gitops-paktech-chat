@@ -1,0 +1,47 @@
+# One definition, one Application per environment. To add an environment, add a list element
+# and an environments/<name>/values.yaml file; nothing else changes.
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: paktech-chat
+  namespace: argocd
+  annotations: {argocd.argoproj.io/sync-wave: "1"}
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - list:
+        elements:
+          - {env: dev}
+          # - {env: staging}     # enable by uncommenting in a pull request
+          # - {env: prod}
+  template:
+    metadata:
+      name: 'paktech-chat-{{.env}}'
+    spec:
+      project: paktech-chat
+      source:
+        repoURL: https://github.com/PakTechLimited/gitops-paktech-chat.git
+        targetRevision: main
+        path: charts/paktech-chat
+        helm:
+          valueFiles:
+            - '../../environments/{{.env}}/values.yaml'
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: 'paktech-chat-{{.env}}'
+      syncPolicy:
+        syncOptions: [CreateNamespace=true]
+        managedNamespaceMetadata:
+          labels:
+            pod-security.kubernetes.io/enforce: baseline
+            pod-security.kubernetes.io/warn: restricted
+  # dev and staging deploy automatically on every merge; prod waits for a human to press Sync.
+  templatePatch: |
+    {{- if ne .env "prod" }}
+    spec:
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+    {{- end }}

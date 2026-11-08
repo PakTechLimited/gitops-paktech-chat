@@ -1,0 +1,45 @@
+# Runs "alembic upgrade head" once per sync, after PostgreSQL is ready (wave 1) and before the
+# API starts (wave 2). Hook type Sync + BeforeHookCreation lets Argo CD recreate the Job each time,
+# which a plain Job cannot do because its spec is immutable.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: migrate
+  labels: {{- include "pc.labels" . | nindent 4 }}
+  annotations:
+    argocd.argoproj.io/hook: Sync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  backoffLimit: 5
+  ttlSecondsAfterFinished: 600
+  template:
+    metadata:
+      labels: {app: migrate, azure.workload.identity/use: "true"}
+    spec:
+      restartPolicy: OnFailure
+      serviceAccountName: paktech-chat
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+        seccompProfile: {type: RuntimeDefault}
+      containers:
+        - name: migrate
+          image: {{ .Values.image.registry }}/{{ .Values.image.api.repository }}:{{ .Values.image.api.tag }}
+          command: ["alembic", "upgrade", "head"]
+          env:
+            - {name: POSTGRES_HOST, value: postgres}
+            - {name: POSTGRES_DB, value: {{ .Values.config.postgresDb | quote }}}
+            - {name: POSTGRES_USER, value: {{ .Values.config.postgresUser | quote }}}
+            - name: POSTGRES_PASSWORD
+              valueFrom: {secretKeyRef: {name: paktech-chat-secrets, key: POSTGRES_PASSWORD}}
+            - name: SECRET_KEY
+              valueFrom: {secretKeyRef: {name: paktech-chat-secrets, key: SECRET_KEY}}
+          resources:
+            requests: {cpu: 50m, memory: 128Mi}
+            limits:   {memory: 256Mi}
+          {{- include "pc.containerSecurity" . | nindent 10 }}
+          volumeMounts:
+            - {name: secrets-store, mountPath: /mnt/secrets, readOnly: true}
+      volumes:
+        {{- include "pc.secretVolume" . | nindent 8 }}

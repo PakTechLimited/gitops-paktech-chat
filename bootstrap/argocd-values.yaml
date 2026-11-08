@@ -1,0 +1,33 @@
+# Helm values for the one-time Argo CD install. After that, Argo CD manages everything else from Git.
+global:
+  domain: argocd.paktechlimited.chat   # only used for generated links; the UI is reached by port-forward
+configs:
+  params:
+    server.insecure: true               # TLS is not terminated here; we use kubectl port-forward
+  cm:
+    application.resourceTrackingMethod: annotation
+    timeout.reconciliation: 180s        # poll Git every 3 minutes
+controller:
+  resources:
+    requests: {cpu: 100m, memory: 256Mi}
+    limits:   {memory: 512Mi}
+server:
+  resources:
+    requests: {cpu: 50m, memory: 64Mi}
+    limits:   {memory: 256Mi}
+repoServer:
+  resources:
+    requests: {cpu: 50m, memory: 128Mi}
+    limits:   {memory: 512Mi}
+applicationSet:
+  resources:
+    requests: {cpu: 25m, memory: 64Mi}
+    limits:   {memory: 128Mi}
+redis:
+  resources:
+    requests: {cpu: 25m, memory: 32Mi}
+    limits:   {memory: 128Mi}
+dex:
+  enabled: false                        # no SSO yet; local admin only
+notifications:
+  enabled: false

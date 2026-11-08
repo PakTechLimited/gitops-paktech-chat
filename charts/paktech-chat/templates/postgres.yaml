@@ -1,0 +1,58 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  labels: {{- include "pc.labels" . | nindent 4 }}
+  annotations: {argocd.argoproj.io/sync-wave: "0"}
+spec:
+  clusterIP: None
+  selector: {app: postgres}
+  ports: [{name: pg, port: 5432}]
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+  labels: {{- include "pc.labels" . | nindent 4 }}
+  annotations: {argocd.argoproj.io/sync-wave: "0"}
+spec:
+  serviceName: postgres
+  replicas: 1
+  selector:
+    matchLabels: {app: postgres}
+  template:
+    metadata:
+      labels: {app: postgres, azure.workload.identity/use: "true"}
+    spec:
+      serviceAccountName: paktech-chat
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 70          # the postgres user in the alpine image
+        fsGroup: 70
+        seccompProfile: {type: RuntimeDefault}
+      containers:
+        - name: postgres
+          image: {{ .Values.postgres.image }}
+          ports: [{name: pg, containerPort: 5432}]
+          env:
+            - {name: POSTGRES_DB, value: {{ .Values.config.postgresDb | quote }}}
+            - {name: POSTGRES_USER, value: {{ .Values.config.postgresUser | quote }}}
+            - name: POSTGRES_PASSWORD
+              valueFrom: {secretKeyRef: {name: paktech-chat-secrets, key: POSTGRES_PASSWORD}}
+            - {name: PGDATA, value: /var/lib/postgresql/data/pgdata}   # subfolder: the volume root contains lost+found
+          readinessProbe:
+            exec: {command: [sh, -c, "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]}
+            periodSeconds: 5
+          resources: {{- toYaml .Values.postgres.resources | nindent 12 }}
+          {{- include "pc.containerSecurity" . | nindent 10 }}
+          volumeMounts:
+            - {name: data, mountPath: /var/lib/postgresql/data}
+            - {name: secrets-store, mountPath: /mnt/secrets, readOnly: true}
+      volumes:
+        {{- include "pc.secretVolume" . | nindent 8 }}
+  volumeClaimTemplates:
+    - metadata: {name: data}
+      spec:
+        accessModes: [ReadWriteOnce]
+        storageClassName: {{ .Values.postgres.storageClass }}
+        resources: {requests: {storage: {{ .Values.postgres.storage }}}}

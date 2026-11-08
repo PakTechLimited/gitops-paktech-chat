@@ -1,0 +1,21 @@
+# App of apps: the single Application you apply by hand. It watches platform/apps/ and creates
+# every other Application, AppProject and ApplicationSet from Git.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: root
+  namespace: argocd
+  finalizers: [resources-finalizer.argocd.argoproj.io]
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/PakTechLimited/gitops-paktech-chat.git
+    targetRevision: main
+    path: platform/apps
+    directory:
+      recurse: true
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    automated: {prune: true, selfHeal: true}

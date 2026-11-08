@@ -1,0 +1,6 @@
+apiVersion: v2
+name: paktech-chat
+description: PakTech Chat (FastAPI API, Next.js web, PostgreSQL, Redis) for one environment
+type: application
+version: 0.1.0
+appVersion: "0.1.0"

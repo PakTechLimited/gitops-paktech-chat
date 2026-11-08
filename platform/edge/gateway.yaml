@@ -1,0 +1,57 @@
+# The single public entry point. cert-manager watches the annotation below and creates one
+# Certificate per HTTPS listener; the TLS Secrets it produces are referenced by certificateRefs.
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: paktech-gateway
+  namespace: edge
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-staging   # switch to letsencrypt-prod after the first success
+spec:
+  gatewayClassName: paktech
+  listeners:
+    - name: http
+      protocol: HTTP
+      port: 80
+      allowedRoutes:
+        namespaces: {from: All}       # HTTP-01 challenge routes and the HTTPS redirect live here
+    - name: https-apex
+      protocol: HTTPS
+      port: 443
+      hostname: paktechlimited.chat
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - {name: paktechlimited-chat-tls}
+      allowedRoutes:
+        namespaces: {from: All}      # app HTTPRoutes live in paktech-chat-<env> namespaces
+    - name: https-www
+      protocol: HTTPS
+      port: 443
+      hostname: www.paktechlimited.chat
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - {name: www-paktechlimited-chat-tls}
+      allowedRoutes:
+        namespaces: {from: All}      # app HTTPRoutes live in paktech-chat-<env> namespaces
+    - name: https-dev
+      protocol: HTTPS
+      port: 443
+      hostname: dev.paktechlimited.chat
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - {name: dev-paktechlimited-chat-tls}
+      allowedRoutes:
+        namespaces: {from: All}      # app HTTPRoutes live in paktech-chat-<env> namespaces
+    - name: https-staging
+      protocol: HTTPS
+      port: 443
+      hostname: staging.paktechlimited.chat
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - {name: staging-paktechlimited-chat-tls}
+      allowedRoutes:
+        namespaces: {from: All}      # app HTTPRoutes live in paktech-chat-<env> namespaces

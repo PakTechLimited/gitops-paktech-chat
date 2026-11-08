@@ -1,0 +1,21 @@
+# Settings for the Envoy proxy pods and the Service in front of them.
+# The annotations tell the Azure cloud provider to use OUR static IP instead of creating a new one.
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: EnvoyProxy
+metadata:
+  name: paktech-proxy
+  namespace: edge
+spec:
+  provider:
+    type: Kubernetes
+    kubernetes:
+      envoyService:
+        annotations:
+          service.beta.kubernetes.io/azure-load-balancer-resource-group: rg-paktech-prod
+          service.beta.kubernetes.io/azure-pip-name: pip-ingress-paktech-prod
+      envoyDeployment:
+        replicas: 1
+        container:
+          resources:
+            requests: {cpu: 50m, memory: 64Mi}
+            limits:   {memory: 256Mi}

@@ -1,0 +1,8 @@
+env: staging
+host: staging.paktechlimited.chat
+gatewayListener: https-staging
+azure:
+  secretPrefix: staging
+image:
+  api: {tag: REPLACE_WITH_IMAGE_TAG}
+  web: {tag: REPLACE_WITH_IMAGE_TAG}
