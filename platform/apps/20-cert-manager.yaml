@@ -6,14 +6,18 @@ metadata:
   annotations: {argocd.argoproj.io/sync-wave: "-1"}
 spec:
   project: platform
-  # cert-manager's cainjector writes the webhook CA into this object after install, so it never
-  # matches Git. Ignoring just that field stops a permanent, harmless OutOfSync.
+  # Two harmless fields differ from Git on every AKS cluster:
+  #  - cainjector writes the webhook CA (caBundle) after install;
+  #  - the AKS Admissions Enforcer adds namespaceSelector exclusions (control-plane, managedby=aks)
+  #    to every webhook so a broken webhook can never block the system namespaces.
+  # Ignoring just those fields stops a permanent OutOfSync without hiding real changes.
   ignoreDifferences:
     - group: admissionregistration.k8s.io
       kind: ValidatingWebhookConfiguration
       name: cert-manager-webhook
       jqPathExpressions:
         - .webhooks[]?.clientConfig.caBundle
+        - '.webhooks[]?.namespaceSelector.matchExpressions[]? | select(.key == "control-plane" or .key == "kubernetes.azure.com/managedby")'
   source:
     repoURL: https://charts.jetstack.io
     chart: cert-manager
