@@ -4,5 +4,5 @@ gatewayListener: https-dev
 azure:
   secretPrefix: dev
 image:
-  api: {tag: 9976546}    # Phase 4 CI rewrites these two lines on every merge
-  web: {tag: 9976546}
+  api: {tag: 74b99c5}    # Phase 4 CI rewrites these two lines on every merge
+  web: {tag: 74b99c5}
