@@ -4,5 +4,5 @@ gatewayListener: https-staging
 azure:
   secretPrefix: staging
 image:
-  api: {tag: 1d88755}
-  web: {tag: 1d88755}
+  api: {tag: 7bedc25}
+  web: {tag: 7bedc25}
