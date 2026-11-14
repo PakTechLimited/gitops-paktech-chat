@@ -13,7 +13,7 @@ spec:
     - list:
         elements:
           - {env: dev}
-          # - {env: staging}     # enable by uncommenting in a pull request
+          - {env: staging}
           # - {env: prod}
   template:
     metadata:
