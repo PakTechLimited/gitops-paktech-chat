@@ -1,0 +1,6 @@
+{{- /* Fail the sync loudly if an image tag is not a string. An unquoted all-digit SHA is read as a number and rendered as 9.976546e+06, which is not a valid image name. */ -}}
+{{- range $name, $img := dict "api" .Values.image.api "web" .Values.image.web }}
+{{- if not (kindIs "string" $img.tag) }}
+{{- fail (printf "image.%s.tag must be a quoted string (got %v, type %s); quote it in environments/<env>/values.yaml" $name $img.tag (kindOf $img.tag)) }}
+{{- end }}
+{{- end }}

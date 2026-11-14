@@ -4,8 +4,8 @@ gatewayListener: https-apex
 azure:
   secretPrefix: prod
 image:
-  api: {tag: 1d88755}
-  web: {tag: 1d88755}
+  api: {tag: "1d88755"}
+  web: {tag: "1d88755"}
 api:
   replicas: 2
   autoscaling: {enabled: true, minReplicas: 2, maxReplicas: 3, targetCPUUtilizationPercentage: 70}
