@@ -1,0 +1,16 @@
+# No privileged containers in the application namespaces.
+# Starts in dryrun: violations are recorded on this object (kubectl get k8spspprivilegedcontainer no-privileged-containers -o yaml), nothing is rejected.
+# Order of rollout: dryrun, then warn, then deny, once the audit list is empty.
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sPSPPrivilegedContainer
+metadata:
+  name: no-privileged-containers
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  enforcementAction: dryrun
+  match:
+    kinds:
+      - {apiGroups: [""], kinds: ["Pod"]}
+    namespaces: [paktech-chat-dev, paktech-chat-staging, paktech-chat-prod]
