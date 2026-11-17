@@ -10,6 +10,7 @@ spec:
     - https://github.com/PakTechLimited/gitops-paktech-chat.git
     - https://charts.jetstack.io
     - docker.io/envoyproxy
+    - https://open-policy-agent.github.io/gatekeeper/charts
   destinations:
     - {server: https://kubernetes.default.svc, namespace: "*"}
   clusterResourceWhitelist:
