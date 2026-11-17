@@ -49,8 +49,16 @@ spec:
           volumeMounts:
             - {name: data, mountPath: /var/lib/postgresql/data}
             - {name: secrets-store, mountPath: /mnt/secrets, readOnly: true}
+            {{- if .Values.hardening.readOnlyRootFilesystem }}
+            - {name: run, mountPath: /var/run/postgresql}   # unix socket and pid file
+            - {name: tmp, mountPath: /tmp}
+            {{- end }}
       volumes:
         {{- include "pc.secretVolume" . | nindent 8 }}
+        {{- if .Values.hardening.readOnlyRootFilesystem }}
+        - {name: run, emptyDir: {sizeLimit: 8Mi}}
+        - {name: tmp, emptyDir: {sizeLimit: 64Mi}}
+        {{- end }}
   volumeClaimTemplates:
     - metadata: {name: data}
       spec:

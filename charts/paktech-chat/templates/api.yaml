@@ -65,8 +65,16 @@ spec:
           {{- include "pc.containerSecurity" . | nindent 10 }}
           volumeMounts:
             - {name: secrets-store, mountPath: /mnt/secrets, readOnly: true}
+            {{- if .Values.hardening.readOnlyRootFilesystem }}
+            - {name: tmp, mountPath: /tmp}
+            - {name: gunicorn, mountPath: /home/appuser/.gunicorn}   # gunicorn control socket
+            {{- end }}
       volumes:
         {{- include "pc.secretVolume" . | nindent 8 }}
+        {{- if .Values.hardening.readOnlyRootFilesystem }}
+        - {name: tmp, emptyDir: {sizeLimit: 64Mi}}
+        - {name: gunicorn, emptyDir: {sizeLimit: 8Mi}}
+        {{- end }}
 ---
 {{- if .Values.api.autoscaling.enabled }}
 apiVersion: autoscaling/v2

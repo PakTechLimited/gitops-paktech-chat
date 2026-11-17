@@ -40,3 +40,13 @@ spec:
             periodSeconds: 20
           resources: {{- toYaml .Values.web.resources | nindent 12 }}
           {{- include "pc.containerSecurity" . | nindent 10 }}
+          {{- if .Values.hardening.readOnlyRootFilesystem }}
+          volumeMounts:
+            - {name: tmp, mountPath: /tmp}
+            - {name: next-cache, mountPath: /app/.next/cache}   # Next.js image and fetch cache
+          {{- end }}
+      {{- if .Values.hardening.readOnlyRootFilesystem }}
+      volumes:
+        - {name: tmp, emptyDir: {sizeLimit: 64Mi}}
+        - {name: next-cache, emptyDir: {sizeLimit: 128Mi}}
+      {{- end }}

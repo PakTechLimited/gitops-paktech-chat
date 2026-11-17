@@ -11,6 +11,9 @@ securityContext:
 securityContext:
   allowPrivilegeEscalation: false
   capabilities: {drop: [ALL]}
+  {{- if .Values.hardening.readOnlyRootFilesystem }}
+  readOnlyRootFilesystem: true
+  {{- end }}
 {{- end -}}
 {{- define "pc.secretVolume" -}}
 - name: secrets-store
