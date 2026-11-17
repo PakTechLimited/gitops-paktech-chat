@@ -1,6 +1,8 @@
 env: prod
 host: paktechlimited.chat
 gatewayListener: https-apex
+hardening:
+  readOnlyRootFilesystem: true
 azure:
   secretPrefix: prod
 image:
