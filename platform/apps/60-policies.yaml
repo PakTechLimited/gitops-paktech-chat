@@ -1,0 +1,25 @@
+# Phase 5, layer 2: Gatekeeper policies. templates/ holds ConstraintTemplates copied from the Gatekeeper library
+# (scripts/fetch-policies.sh records the exact library commit); constraints/ holds our instances of them.
+# Constraints carry sync-wave 1 so they apply after the templates, and every one starts in enforcementAction: dryrun.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: policies
+  namespace: argocd
+  annotations: {argocd.argoproj.io/sync-wave: "6"}
+spec:
+  project: platform
+  source:
+    repoURL: https://github.com/PakTechLimited/gitops-paktech-chat.git
+    targetRevision: main
+    path: platform/policies
+    directory: {recurse: true}
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: gatekeeper-system
+  syncPolicy:
+    automated: {prune: true, selfHeal: true}
+    syncOptions: [SkipDryRunOnMissingResource=true]
+    retry:
+      limit: 5
+      backoff: {duration: 10s, factor: 2, maxDuration: 2m}
