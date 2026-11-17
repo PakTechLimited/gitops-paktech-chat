@@ -42,5 +42,11 @@ spec:
           {{- include "pc.containerSecurity" . | nindent 10 }}
           volumeMounts:
             - {name: secrets-store, mountPath: /mnt/secrets, readOnly: true}
+            {{- if .Values.hardening.readOnlyRootFilesystem }}
+            - {name: tmp, mountPath: /tmp}
+            {{- end }}
       volumes:
         {{- include "pc.secretVolume" . | nindent 8 }}
+        {{- if .Values.hardening.readOnlyRootFilesystem }}
+        - {name: tmp, emptyDir: {sizeLimit: 64Mi}}
+        {{- end }}

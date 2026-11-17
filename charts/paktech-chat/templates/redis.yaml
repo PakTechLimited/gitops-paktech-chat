@@ -37,3 +37,11 @@ spec:
             periodSeconds: 5
           resources: {{- toYaml .Values.redis.resources | nindent 12 }}
           {{- include "pc.containerSecurity" . | nindent 10 }}
+          {{- if .Values.hardening.readOnlyRootFilesystem }}
+          volumeMounts:
+            - {name: data, mountPath: /data}   # redis changes into /data at start even with persistence off
+          {{- end }}
+      {{- if .Values.hardening.readOnlyRootFilesystem }}
+      volumes:
+        - {name: data, emptyDir: {sizeLimit: 64Mi}}
+      {{- end }}

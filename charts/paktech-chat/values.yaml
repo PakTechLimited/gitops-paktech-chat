@@ -5,6 +5,11 @@ gatewayListener: https-dev     # HTTPS listener on the shared Gateway (platform/
 ai:
   enabled: false               # true once <prefix>-anthropic-api-key exists in Key Vault
 
+# Phase 5 layer 3: read-only root filesystem for every container, with small emptyDir volumes for the paths that
+# really need writing. Default false so a merge changes nothing; each environment turns it on in its own values file.
+hardening:
+  readOnlyRootFilesystem: false
+
 image:
   registry: paktechacr.azurecr.io
   api: {repository: paktech-chat-api, tag: "REPLACE_WITH_IMAGE_TAG"}
