@@ -1,6 +1,8 @@
 env: staging
 host: staging.paktechlimited.chat
 gatewayListener: https-staging
+hardening:
+  readOnlyRootFilesystem: true
 azure:
   secretPrefix: staging
 image:
