@@ -12,8 +12,8 @@ hardening:
 
 image:
   registry: paktechacr.azurecr.io
-  api: {repository: paktech-chat-api, tag: "REPLACE_WITH_IMAGE_TAG"}
-  web: {repository: paktech-chat-web, tag: "REPLACE_WITH_IMAGE_TAG"}
+  api: {repository: paktech-chat-api, tag: "REPLACE_WITH_IMAGE_TAG", digest: ""}
+  web: {repository: paktech-chat-web, tag: "REPLACE_WITH_IMAGE_TAG", digest: ""}
 
 azure:
   tenantId: 90804743-b406-4379-9dcf-463473e05f1a

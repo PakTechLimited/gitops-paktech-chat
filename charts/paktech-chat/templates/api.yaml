@@ -33,7 +33,7 @@ spec:
       terminationGracePeriodSeconds: 60     # lets open WebSockets close cleanly during a rollout
       containers:
         - name: api
-          image: {{ .Values.image.registry }}/{{ .Values.image.api.repository }}:{{ .Values.image.api.tag }}
+          image: {{ include "pc.image" (dict "root" . "name" "api") }}
           ports: [{name: http, containerPort: 8000}]
           env:
             - {name: APP_ENV, value: production}

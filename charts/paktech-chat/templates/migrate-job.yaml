@@ -26,7 +26,7 @@ spec:
         seccompProfile: {type: RuntimeDefault}
       containers:
         - name: migrate
-          image: {{ .Values.image.registry }}/{{ .Values.image.api.repository }}:{{ .Values.image.api.tag }}
+          image: {{ include "pc.image" (dict "root" . "name" "api") }}
           command: ["alembic", "upgrade", "head"]
           env:
             - {name: POSTGRES_HOST, value: postgres}

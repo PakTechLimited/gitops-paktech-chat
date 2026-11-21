@@ -29,7 +29,7 @@ spec:
         seccompProfile: {type: RuntimeDefault}
       containers:
         - name: web
-          image: {{ .Values.image.registry }}/{{ .Values.image.web.repository }}:{{ .Values.image.web.tag }}
+          image: {{ include "pc.image" (dict "root" . "name" "web") }}
           ports: [{name: http, containerPort: 3000}]
           readinessProbe:
             httpGet: {path: /, port: http}
