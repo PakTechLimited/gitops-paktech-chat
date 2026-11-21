@@ -31,6 +31,9 @@ spec:
         runAsUser: 1001
         seccompProfile: {type: RuntimeDefault}
       terminationGracePeriodSeconds: 60     # lets open WebSockets close cleanly during a rollout
+      {{- if .Values.hardening.disableTokenAutomount }}
+      automountServiceAccountToken: false
+      {{- end }}
       containers:
         - name: api
           image: {{ include "pc.image" (dict "root" . "name" "api") }}

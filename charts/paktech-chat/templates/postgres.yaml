@@ -31,6 +31,9 @@ spec:
         runAsUser: 70          # the postgres user in the alpine image
         fsGroup: 70
         seccompProfile: {type: RuntimeDefault}
+      {{- if .Values.hardening.disableTokenAutomount }}
+      automountServiceAccountToken: false
+      {{- end }}
       containers:
         - name: postgres
           image: {{ .Values.postgres.image }}
