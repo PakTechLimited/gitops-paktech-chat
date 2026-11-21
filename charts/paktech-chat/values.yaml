@@ -52,3 +52,8 @@ config:
   postgresDb: paktechchat
   postgresUser: chatuser
   aiModel: claude-sonnet-5-5
+
+networkPolicy:
+  egress:
+    enabled: false            # per environment; dev first
+    apiInternetHttps: true    # api may reach the public internet on 443 (AI assistant); false = no internet at all
