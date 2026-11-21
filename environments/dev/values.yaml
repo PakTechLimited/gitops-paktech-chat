@@ -6,5 +6,5 @@ hardening:
 azure:
   secretPrefix: dev
 image:
-  api: {tag: "b74a303"}    # Phase 4 CI rewrites these two lines on every merge
-  web: {tag: "b74a303"}
+  api: {tag: "554bf39"}    # Phase 4 CI rewrites these two lines on every merge
+  web: {tag: "554bf39"}
