@@ -27,6 +27,10 @@ spec:
             paktech-chat-prod: acr-trivy-scan
         trivy:
           ignoreUnfixed: true               # report only vulnerabilities that have a fix available
+        nodeCollector:
+          tolerations:                      # node-level checks must also run on the tainted system and monitoring nodes
+            - {key: workload, operator: Equal, value: monitoring, effect: NoSchedule}
+            - {key: CriticalAddonsOnly, operator: Exists}
   destination:
     server: https://kubernetes.default.svc
     namespace: trivy-system
