@@ -3,6 +3,10 @@ host: paktechlimited.chat
 gatewayListener: https-apex
 hardening:
   readOnlyRootFilesystem: true
+  disableTokenAutomount: true
+networkPolicy:
+  egress:
+    enabled: true
 azure:
   secretPrefix: prod
 image:
