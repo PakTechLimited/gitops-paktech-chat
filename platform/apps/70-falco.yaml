@@ -1,0 +1,40 @@
+# Phase 5, layer 5a: Falco runtime threat detection (syscall level, eBPF).
+# One agent per node, privileged by necessity, so its namespace is the single place that opts out of Pod Security.
+# Output is JSON on stdout for now; Phase 6 ships it to the monitoring stack.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: falco
+  namespace: argocd
+  annotations: {argocd.argoproj.io/sync-wave: "7"}
+spec:
+  project: platform
+  source:
+    repoURL: https://falcosecurity.github.io/charts
+    chart: falco
+    targetRevision: 9.2.2                   # app v0.45.2
+    helm:
+      valuesObject:
+        driver:
+          kind: modern_ebpf                 # CO-RE eBPF: no kernel module build, needs kernel with BTF (AKS nodes have it)
+        tty: true                           # flush alerts immediately
+        tolerations:
+          - operator: Exists                # run on every node, including the tainted system and monitoring pools
+        falco:
+          json_output: true
+          json_include_output_property: true
+          priority: notice                  # ignore debug/info rules
+        resources:
+          requests: {cpu: 100m, memory: 256Mi}
+          limits: {memory: 1Gi}
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: falco
+  syncPolicy:
+    automated: {prune: true, selfHeal: true}
+    syncOptions: [CreateNamespace=true, ServerSideApply=true]
+    managedNamespaceMetadata:
+      labels:
+        pod-security.kubernetes.io/enforce: privileged
+        pod-security.kubernetes.io/audit: privileged
+        pod-security.kubernetes.io/warn: privileged
