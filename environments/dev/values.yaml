@@ -3,6 +3,9 @@ host: dev.paktechlimited.chat
 gatewayListener: https-dev
 hardening:
   readOnlyRootFilesystem: true
+networkPolicy:
+  egress:
+    enabled: true
 azure:
   secretPrefix: dev
 image:
