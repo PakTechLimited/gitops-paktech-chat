@@ -10,5 +10,5 @@ networkPolicy:
 azure:
   secretPrefix: staging
 image:
-  api: {tag: "7bedc25"}
-  web: {tag: "7bedc25"}
+  api: {tag: "6c3c086", digest: "sha256:6eb19247535f5675787d74f2e10e95982a871d228b795f26e0f6b6cf01d6c3c3"}
+  web: {tag: "6c3c086", digest: "sha256:96a0efc1daded7f689c68e7d28eebded6bee4da8d244b01acce9b0d5c2c95b43"}
