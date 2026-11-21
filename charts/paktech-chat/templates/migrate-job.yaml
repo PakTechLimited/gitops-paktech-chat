@@ -24,6 +24,9 @@ spec:
         runAsNonRoot: true
         runAsUser: 1001
         seccompProfile: {type: RuntimeDefault}
+      {{- if .Values.hardening.disableTokenAutomount }}
+      automountServiceAccountToken: false
+      {{- end }}
       containers:
         - name: migrate
           image: {{ include "pc.image" (dict "root" . "name" "api") }}

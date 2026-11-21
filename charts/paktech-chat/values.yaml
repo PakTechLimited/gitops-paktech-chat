@@ -9,6 +9,7 @@ ai:
 # really need writing. Default false so a merge changes nothing; each environment turns it on in its own values file.
 hardening:
   readOnlyRootFilesystem: false
+  disableTokenAutomount: false   # true = no Kubernetes API token mounted into app pods
 
 image:
   registry: paktechacr.azurecr.io
