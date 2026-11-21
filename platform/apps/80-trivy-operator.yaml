@@ -1,0 +1,35 @@
+# Phase 5, layer 5b: Trivy Operator. Continuously scans running workloads in the cluster and publishes the results
+# as Kubernetes resources: VulnerabilityReports, ConfigAuditReports, ExposedSecretReports, RbacAssessmentReports.
+# Registry access: scan jobs authenticate to ACR with a read-only repository-scoped token (acr-trivy-scan secret,
+# created by hand in each app namespace and recorded in Key Vault; never in git).
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: trivy-operator
+  namespace: argocd
+  annotations: {argocd.argoproj.io/sync-wave: "8"}
+spec:
+  project: platform
+  source:
+    repoURL: https://aquasecurity.github.io/helm-charts/
+    chart: trivy-operator
+    targetRevision: 0.38.1                  # app v0.36.1
+    helm:
+      valuesObject:
+        nodeSelector: {agentpool: monitoring}
+        tolerations:
+          - {key: workload, operator: Equal, value: monitoring, effect: NoSchedule}
+        operator:
+          scanJobsConcurrentLimit: 2        # lab-sized nodes: at most two scanners at once
+          privateRegistryScanSecretsNames:
+            paktech-chat-dev: acr-trivy-scan
+            paktech-chat-staging: acr-trivy-scan
+            paktech-chat-prod: acr-trivy-scan
+        trivy:
+          ignoreUnfixed: true               # report only vulnerabilities that have a fix available
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: trivy-system
+  syncPolicy:
+    automated: {prune: true, selfHeal: true}
+    syncOptions: [CreateNamespace=true, ServerSideApply=true]
