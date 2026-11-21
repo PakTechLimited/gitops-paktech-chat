@@ -3,6 +3,10 @@ host: staging.paktechlimited.chat
 gatewayListener: https-staging
 hardening:
   readOnlyRootFilesystem: true
+  disableTokenAutomount: true
+networkPolicy:
+  egress:
+    enabled: true
 azure:
   secretPrefix: staging
 image:
