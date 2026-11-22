@@ -55,3 +55,13 @@ spec:
           - {name: staging-paktechlimited-chat-tls}
       allowedRoutes:
         namespaces: {from: All}      # app HTTPRoutes live in paktech-chat-<env> namespaces
+    - name: https-grafana
+      protocol: HTTPS
+      port: 443
+      hostname: grafana.paktechlimited.chat
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - {name: grafana-paktechlimited-chat-tls}
+      allowedRoutes:
+        namespaces: {from: All}      # the Grafana HTTPRoute lives in the monitoring namespace
