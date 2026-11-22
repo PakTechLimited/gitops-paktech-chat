@@ -15,6 +15,11 @@ spec:
     targetRevision: 9.2.2                   # app v0.45.2
     helm:
       valuesObject:
+        metrics:                            # Phase 6: Prometheus endpoint for the monitoring stack
+          enabled: true
+          interval: 30s
+        serviceMonitor:
+          create: true
         driver:
           kind: modern_ebpf                 # CO-RE eBPF: no kernel module build, needs kernel with BTF (AKS nodes have it)
         tty: true                           # flush alerts immediately
