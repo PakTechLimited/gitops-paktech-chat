@@ -24,7 +24,9 @@ spec:
         - alert: TrivyCriticalVulnerability
           # The postgres image is excluded on purpose: its single Critical (gosu, Go stdlib) is an accepted,
           # documented upstream finding. Remove the exclusion when the upstream image is fixed.
-          expr: sum by (namespace, image_repository) (trivy_image_vulnerabilities{severity="Critical", image_repository!~".*postgres.*"}) > 0
+          # kube-system is excluded too: those are AKS-managed add-ons we cannot rebuild (azurefile-csi has 4 Critical
+          # today); they are fixed by AKS upgrades. Critical findings in every image we build or choose still alert.
+          expr: sum by (namespace, image_repository) (trivy_image_vulnerabilities{severity="Critical", image_repository!~".*postgres.*", namespace!="kube-system"}) > 0
           for: 1h
           labels: {severity: warning}
           annotations:
