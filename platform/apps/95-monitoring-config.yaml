@@ -1,0 +1,24 @@
+# Phase 6: our own monitoring objects (PodMonitors, ServiceMonitors, rules) live in platform/monitoring.
+# They need the Prometheus Operator CRDs from the monitoring application, hence the later sync wave.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: monitoring-config
+  namespace: argocd
+  annotations: {argocd.argoproj.io/sync-wave: "10"}
+spec:
+  project: platform
+  source:
+    repoURL: https://github.com/PakTechLimited/gitops-paktech-chat.git
+    targetRevision: main
+    path: platform/monitoring
+    directory: {recurse: true}
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    automated: {prune: true, selfHeal: true}
+    syncOptions: [SkipDryRunOnMissingResource=true]
+    retry:
+      limit: 5
+      backoff: {duration: 10s, factor: 2, maxDuration: 2m}
