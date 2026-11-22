@@ -1,0 +1,15 @@
+# Argo CD's chart creates no metrics Services, so scrape the pods directly.
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: argocd
+  namespace: monitoring
+spec:
+  namespaceSelector: {matchNames: [argocd]}
+  selector:
+    matchExpressions:
+      - key: app.kubernetes.io/name
+        operator: In
+        values: [argocd-application-controller, argocd-server, argocd-repo-server, argocd-applicationset-controller]
+  podMetricsEndpoints:
+    - {port: metrics}
