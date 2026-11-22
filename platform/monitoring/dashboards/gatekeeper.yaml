@@ -52,7 +52,7 @@ data:
        "type": "row"
       },
       {
-       "datasource": "${DS_PROMETHEUS_K8S }",
+       "datasource": "prometheus",
        "description": "Description: Current number of constraint templates\n\"All NS\"\n\nUnderstanding this metric: Gatekeeper subscribes to a watch on all ConstraintTemplate resources. Whenever one is created or deleted on the cluster, this count gets updated.",
        "fieldConfig": {
         "defaults": {
@@ -112,7 +112,7 @@ data:
        "type": "stat"
       },
       {
-       "datasource": "${DS_PROMETHEUS_K8S }",
+       "datasource": "prometheus",
        "description": "Description: The number of audit violations per constraint detected in the last audit cycle\n\nUnderstanding this metric: During each run, the audit sums up all of the violations that it finds and reports these counts per-enforcement-mode.",
        "fieldConfig": {
         "defaults": {
@@ -262,7 +262,7 @@ data:
        "type": "row"
       },
       {
-       "datasource": "${DS_PROMETHEUS_K8S }",
+       "datasource": "prometheus",
        "description": "The number of audit violations per constraint detected in the last audit cycle",
        "fieldConfig": {
         "defaults": {
@@ -384,7 +384,7 @@ data:
        "type": "bargauge"
       },
       {
-       "datasource": "${DS_PROMETHEUS_K8S }",
+       "datasource": "prometheus",
        "description": "Latency of audit operation",
        "fieldConfig": {
         "defaults": {
@@ -447,7 +447,7 @@ data:
        "type": "stat"
       },
       {
-       "datasource": "${DS_PROMETHEUS_K8S }",
+       "datasource": "prometheus",
        "description": "Description: Timestamp of last audit run time",
        "fieldConfig": {
         "defaults": {
@@ -510,7 +510,7 @@ data:
        "type": "stat"
       },
       {
-       "datasource": "${DS_PROMETHEUS_K8S }",
+       "datasource": "prometheus",
        "description": "Total number of watched GroupVersionKinds",
        "fieldConfig": {
         "defaults": {
@@ -573,7 +573,7 @@ data:
        "type": "stat"
       },
       {
-       "datasource": "${DS_PROMETHEUS_K8S }",
+       "datasource": "prometheus",
        "description": "Total number of GroupVersionKinds with a registered watch intent",
        "fieldConfig": {
         "defaults": {
@@ -650,7 +650,7 @@ data:
        "type": "row"
       },
       {
-       "datasource": "${DS_PROMETHEUS_K8S }",
+       "datasource": "prometheus",
        "description": "Description: The number of requests that are routed to mutation webhook",
        "fieldConfig": {
         "defaults": {
@@ -736,7 +736,7 @@ data:
        "type": "timeseries"
       },
       {
-       "datasource": "${DS_PROMETHEUS_K8S }",
+       "datasource": "prometheus",
        "description": "Description: The number of requests that are routed to validation webhook",
        "fieldConfig": {
         "defaults": {
@@ -836,7 +836,7 @@ data:
        "type": "row"
       },
       {
-       "datasource": "${DS_PROMETHEUS_K8S }",
+       "datasource": "prometheus",
        "description": "Description: Current number of constraint templates\n\nUnderstanding this metric: Gatekeeper subscribes to a watch on all ConstraintTemplate resources. Whenever one is created or deleted on the cluster, this count gets updated.",
        "fieldConfig": {
         "defaults": {
@@ -896,7 +896,7 @@ data:
        "type": "stat"
       },
       {
-       "datasource": "${DS_PROMETHEUS_K8S }",
+       "datasource": "prometheus",
        "description": "Current number of constraints\nUnderstanding this metric: Gatekeeper subscribes to a watch on all constraint resources. Whenever one is created or deleted on the cluster, this count gets updated.",
        "fieldConfig": {
         "defaults": {
@@ -1018,7 +1018,7 @@ data:
        "type": "bargauge"
       },
       {
-       "datasource": "${DS_PROMETHEUS_K8S }",
+       "datasource": "prometheus",
        "description": "Description: Constraint Template ingestion duration distribution\n\nUnderstanding this metric: When Gatekeeper is notified of a new constraint template, records the time from when it has loaded the resource from etcd to after OPA successfully returns from compiling the code. If there is a compilation error, the metric is not updated.",
        "fieldConfig": {
         "defaults": {
@@ -1117,8 +1117,8 @@ data:
        {
         "current": {
          "selected": true,
-         "text": "Prometheus K8S ",
-         "value": "Prometheus K8S "
+         "text": "Prometheus",
+         "value": "prometheus"
         },
         "description": null,
         "error": null,
