@@ -1,0 +1,126 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: monitoring
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "9"
+spec:
+  project: platform
+  ignoreDifferences:
+    - group: admissionregistration.k8s.io
+      kind: ValidatingWebhookConfiguration
+      name: kube-prometheus-stack-admission
+      jqPathExpressions:
+        - .webhooks[]?.clientConfig.caBundle
+        - '.webhooks[]?.namespaceSelector.matchExpressions[]? | select(.key == "control-plane" or .key == "kubernetes.azure.com/managedby")'
+    - group: admissionregistration.k8s.io
+      kind: MutatingWebhookConfiguration
+      name: kube-prometheus-stack-admission
+      jqPathExpressions:
+        - .webhooks[]?.clientConfig.caBundle
+        - '.webhooks[]?.namespaceSelector.matchExpressions[]? | select(.key == "control-plane" or .key == "kubernetes.azure.com/managedby")'
+  source:
+    repoURL: https://prometheus-community.github.io/helm-charts
+    chart: kube-prometheus-stack
+    targetRevision: 93.7.0
+    helm:
+      releaseName: kube-prometheus-stack
+      valuesObject:
+        kubeEtcd: {enabled: false}
+        kubeControllerManager: {enabled: false}
+        kubeScheduler: {enabled: false}
+        kubeProxy: {enabled: false}
+        defaultRules:
+          rules: {etcd: false, kubeControllerManager: false, kubeSchedulerAlerting: false, kubeProxy: false}
+        prometheusOperator:
+          nodeSelector: {workload: monitoring}
+          tolerations:
+            - {key: workload, operator: Equal, value: monitoring, effect: NoSchedule}
+          resources: {requests: {cpu: 50m, memory: 128Mi}, limits: {memory: 256Mi}}
+        prometheus:
+          prometheusSpec:
+            retention: 7d
+            retentionSize: 15GB
+            scrapeInterval: 30s
+            serviceMonitorSelectorNilUsesHelmValues: false
+            podMonitorSelectorNilUsesHelmValues: false
+            ruleSelectorNilUsesHelmValues: false
+            probeSelectorNilUsesHelmValues: false
+            nodeSelector: {workload: monitoring}
+            tolerations:
+              - {key: workload, operator: Equal, value: monitoring, effect: NoSchedule}
+            resources: {requests: {cpu: 200m, memory: 1Gi}, limits: {memory: 2Gi}}
+            storageSpec:
+              volumeClaimTemplate:
+                spec:
+                  storageClassName: managed-csi
+                  accessModes: [ReadWriteOnce]
+                  resources: {requests: {storage: 20Gi}}
+        kube-state-metrics:
+          nodeSelector: {workload: monitoring}
+          tolerations:
+            - {key: workload, operator: Equal, value: monitoring, effect: NoSchedule}
+          resources: {requests: {cpu: 50m, memory: 64Mi}, limits: {memory: 256Mi}}
+        prometheus-node-exporter:
+          tolerations:
+            - {operator: Exists}
+          resources: {requests: {cpu: 25m, memory: 32Mi}, limits: {memory: 128Mi}}
+        alertmanager:
+          alertmanagerSpec:
+            nodeSelector: {workload: monitoring}
+            tolerations:
+              - {key: workload, operator: Equal, value: monitoring, effect: NoSchedule}
+            secrets: [alertmanager-slack]
+            resources: {requests: {cpu: 50m, memory: 64Mi}, limits: {memory: 256Mi}}
+            storage:
+              volumeClaimTemplate:
+                spec:
+                  storageClassName: managed-csi
+                  accessModes: [ReadWriteOnce]
+                  resources: {requests: {storage: 1Gi}}
+          config:
+            global: {resolve_timeout: 5m}
+            route:
+              receiver: slack
+              group_by: [alertname, namespace]
+              group_wait: 30s
+              group_interval: 5m
+              repeat_interval: 4h
+              routes:
+                - receiver: "null"
+                  matchers: ['alertname =~ "Watchdog|InfoInhibitor"']
+                - receiver: slack
+                  matchers: ['severity = "critical"']
+                  repeat_interval: 1h
+            receivers:
+              - name: "null"
+              - name: slack
+                slack_configs:
+                  - api_url_file: /etc/alertmanager/secrets/alertmanager-slack/url
+                    send_resolved: true
+        grafana:
+          admin: {existingSecret: grafana-admin, userKey: admin-user, passwordKey: admin-password}
+          nodeSelector: {workload: monitoring}
+          tolerations:
+            - {key: workload, operator: Equal, value: monitoring, effect: NoSchedule}
+          persistence: {enabled: false}
+          resources: {requests: {cpu: 100m, memory: 256Mi}, limits: {memory: 512Mi}}
+          grafana.ini:
+            server: {root_url: "https://grafana.paktechlimited.chat"}
+            users: {allow_sign_up: false}
+            auth.anonymous: {enabled: false}
+            security: {cookie_secure: true}
+          sidecar:
+            dashboards: {enabled: true, label: grafana_dashboard, searchNamespace: ALL}
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    automated: {prune: true, selfHeal: true}
+    syncOptions: [CreateNamespace=true, ServerSideApply=true]
+    managedNamespaceMetadata:
+      labels:
+        pod-security.kubernetes.io/enforce: privileged
+        pod-security.kubernetes.io/audit: privileged
+        pod-security.kubernetes.io/warn: privileged
