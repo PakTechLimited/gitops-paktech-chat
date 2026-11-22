@@ -1,0 +1,53 @@
+# Phase 6 starter alerts for the platform. Every metric and label below was confirmed in Prometheus first.
+# severity: critical goes to Slack at once and repeats hourly; warning is grouped and repeats every 4 hours.
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: paktech-platform
+  namespace: monitoring
+spec:
+  groups:
+    - name: paktech.platform
+      rules:
+        - alert: ArgoAppNotHealthy
+          expr: argocd_app_info{health_status!="Healthy"} == 1
+          for: 15m
+          labels: {severity: warning}
+          annotations:
+            summary: "Argo CD application {{ $labels.name }} is {{ $labels.health_status }} ({{ $labels.sync_status }})"
+        - alert: GatekeeperDenyViolations
+          expr: sum(gatekeeper_violations{enforcement_action="deny"}) > 0
+          for: 10m
+          labels: {severity: warning}
+          annotations:
+            summary: "Existing objects violate a deny constraint ({{ $value }} violations)"
+        - alert: TrivyCriticalVulnerability
+          # The postgres image is excluded on purpose: its single Critical (gosu, Go stdlib) is an accepted,
+          # documented upstream finding. Remove the exclusion when the upstream image is fixed.
+          expr: sum by (namespace, image_repository) (trivy_image_vulnerabilities{severity="Critical", image_repository!~".*postgres.*"}) > 0
+          for: 1h
+          labels: {severity: warning}
+          annotations:
+            summary: "Critical CVE in {{ $labels.namespace }}/{{ $labels.image_repository }}"
+        - alert: FalcoSuspiciousActivity
+          # priority is numeric (syslog levels): 0-4 = emergency..warning, 5 = notice. The second clause catches
+          # series that are new in the last 10 minutes, because increase() misses the first sample of a counter.
+          expr: |
+            (increase(falcosecurity_falco_rules_matches_total{priority=~"[0-4]"}[10m]) > 0)
+            or
+            ((falcosecurity_falco_rules_matches_total{priority=~"[0-4]"} > 0) unless (falcosecurity_falco_rules_matches_total{priority=~"[0-4]"} offset 10m))
+          labels: {severity: critical}
+          annotations:
+            summary: "Falco rule {{ $labels.rule_name }} matched in pod {{ $labels.pod }}"
+        - alert: CertificateExpiringSoon
+          expr: (certmanager_certificate_expiration_timestamp_seconds - time()) < 14 * 24 * 3600
+          for: 1h
+          labels: {severity: warning}
+          annotations:
+            summary: "Certificate {{ $labels.namespace }}/{{ $labels.name }} expires in under 14 days (renewal is failing)"
+        - alert: MonitoringDiskFillingUp
+          expr: kubelet_volume_stats_available_bytes{namespace="monitoring"} / kubelet_volume_stats_capacity_bytes{namespace="monitoring"} < 0.15
+          for: 15m
+          labels: {severity: warning}
+          annotations:
+            summary: "Volume {{ $labels.persistentvolumeclaim }} is over 85 percent full"
