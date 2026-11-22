@@ -748,28 +748,14 @@ data:
        {
         "current": {
          "selected": false,
-         "text": "All",
-         "value": "$__all"
+         "text": ".*",
+         "value": ".*"
         },
-        "datasource": {
-         "type": "prometheus",
-         "uid": "${datasource}"
-        },
-        "definition": "label_values(certmanager_clock_time_seconds, cluster)",
-        "hide": 0,
-        "includeAll": true,
-        "multi": false,
+        "hide": 2,
         "name": "cluster",
         "options": [],
-        "query": {
-         "query": "label_values(certmanager_clock_time_seconds, cluster)",
-         "refId": "StandardVariableQuery"
-        },
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
-        "type": "query"
+        "query": ".*",
+        "type": "constant"
        },
        {
         "allValue": ".*",
@@ -782,14 +768,14 @@ data:
          "type": "prometheus",
          "uid": "${datasource}"
         },
-        "definition": "label_values(certmanager_certificate_ready_status{cluster=~\"$cluster\"}, exported_namespace)",
+        "definition": "label_values(certmanager_certificate_ready_status, exported_namespace)",
         "hide": 0,
         "includeAll": true,
         "multi": false,
         "name": "namespace",
         "options": [],
         "query": {
-         "query": "label_values(certmanager_certificate_ready_status{cluster=~\"$cluster\"}, exported_namespace)",
+         "query": "label_values(certmanager_certificate_ready_status, exported_namespace)",
          "refId": "StandardVariableQuery"
         },
         "refresh": 1,
