@@ -34,6 +34,9 @@ spec:
         defaultRules:
           rules: {etcd: false, kubeControllerManager: false, kubeSchedulerAlerting: false, kubeProxy: false}
         prometheusOperator:
+          admissionWebhooks:
+            certManager: {enabled: true}
+            patch: {enabled: false}
           nodeSelector: {workload: monitoring}
           tolerations:
             - {key: workload, operator: Equal, value: monitoring, effect: NoSchedule}
