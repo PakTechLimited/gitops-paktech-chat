@@ -24,6 +24,9 @@ spec:
     targetRevision: v1.21.3
     helm:
       valuesObject:
+        prometheus:
+          enabled: true
+          servicemonitor: {enabled: true}   # Phase 6: scraped by the monitoring stack
         crds: {enabled: true}
         config:
           gatewayAPI: {enabled: true}              # watch Gateway resources and create Certificates from them

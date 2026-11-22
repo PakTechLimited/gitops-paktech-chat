@@ -16,6 +16,7 @@ spec:
     targetRevision: 0.38.1                  # app v0.36.1
     helm:
       valuesObject:
+        serviceMonitor: {enabled: true}       # Phase 6: scraped by the monitoring stack
         nodeSelector: {agentpool: monitoring}
         tolerations:
           - {key: workload, operator: Equal, value: monitoring, effect: NoSchedule}
