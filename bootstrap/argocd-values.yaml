@@ -9,8 +9,8 @@ configs:
     timeout.reconciliation: 180s        # poll Git every 3 minutes
 controller:
   resources:
-    requests: {cpu: 100m, memory: 256Mi}
-    limits:   {memory: 512Mi}
+    requests: {cpu: 200m, memory: 768Mi}
+    limits:   {memory: 1536Mi}
 server:
   resources:
     requests: {cpu: 50m, memory: 64Mi}
