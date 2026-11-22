@@ -18,7 +18,7 @@ spec:
     namespace: monitoring
   syncPolicy:
     automated: {prune: true, selfHeal: true}
-    syncOptions: [SkipDryRunOnMissingResource=true]
+    syncOptions: [SkipDryRunOnMissingResource=true, ServerSideApply=true]
     retry:
       limit: 5
       backoff: {duration: 10s, factor: 2, maxDuration: 2m}
