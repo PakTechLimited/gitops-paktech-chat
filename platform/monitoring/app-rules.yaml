@@ -1,0 +1,43 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata: {name: paktech-app, namespace: monitoring}
+spec:
+  groups:
+    - name: paktech.app
+      rules:
+        - alert: ApiScrapeDown
+          expr: up{job=~"paktech-chat-.*/api"} == 0
+          for: 5m
+          labels: {severity: warning}
+          annotations: {summary: "Prometheus cannot scrape the api pod {{ $labels.pod }} in {{ $labels.namespace }}"}
+        - alert: ApiHighErrorRate
+          expr: |
+            (sum by (namespace) (rate(http_requests_total{status=~"5.."}[5m]))
+              / sum by (namespace) (rate(http_requests_total[5m]))) > 0.05
+            and sum by (namespace) (rate(http_requests_total[5m])) > 0.1
+          for: 10m
+          labels: {severity: critical}
+          annotations: {summary: "More than 5 percent of api responses are 5xx in {{ $labels.namespace }}"}
+        - alert: ApiHighLatencyP95
+          expr: |
+            histogram_quantile(0.95, sum by (namespace, le) (
+              rate(http_request_duration_seconds_bucket{route!~"/api/v1/ai.*"}[5m]))) > 1
+          for: 10m
+          labels: {severity: warning}
+          annotations: {summary: "api p95 latency above 1 second in {{ $labels.namespace }} (AI routes excluded)"}
+        - alert: WebSocketRejectionsHigh
+          expr: |
+            (sum by (namespace) (rate(ws_connection_attempts_total{result!="accepted"}[10m]))
+              / sum by (namespace) (rate(ws_connection_attempts_total[10m]))) > 0.5
+            and sum by (namespace) (rate(ws_connection_attempts_total[10m])) > 0.02
+          for: 10m
+          labels: {severity: warning}
+          annotations: {summary: "Over half of WebSocket connection attempts are rejected in {{ $labels.namespace }}"}
+        - alert: EdgeHighErrorRate
+          expr: |
+            (sum by (envoy_cluster_name) (rate(envoy_cluster_upstream_rq_xx{envoy_response_code_class="5", envoy_cluster_name=~"httproute/paktech-chat-.*"}[5m]))
+              / sum by (envoy_cluster_name) (rate(envoy_cluster_upstream_rq_xx{envoy_cluster_name=~"httproute/paktech-chat-.*"}[5m]))) > 0.05
+            and sum by (envoy_cluster_name) (rate(envoy_cluster_upstream_rq_xx{envoy_cluster_name=~"httproute/paktech-chat-.*"}[5m])) > 0.05
+          for: 10m
+          labels: {severity: critical}
+          annotations: {summary: "More than 5 percent 5xx at the gateway for route {{ $labels.envoy_cluster_name }}"}

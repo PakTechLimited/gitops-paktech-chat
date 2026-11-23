@@ -1,0 +1,477 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dashboard-paktech-chat
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "1"
+  annotations:
+    paktech/source: "own dashboard (PakTech Chat application metrics)"
+data:
+  paktech-chat.json: |
+    {
+     "editable": true,
+     "panels": [
+      {
+       "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+       },
+       "fieldConfig": {
+        "defaults": {
+         "unit": "short"
+        },
+        "overrides": []
+       },
+       "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 0
+       },
+       "id": 1,
+       "options": {
+        "colorMode": "value",
+        "reduceOptions": {
+         "calcs": [
+          "lastNotNull"
+         ]
+        }
+       },
+       "targets": [
+        {
+         "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+         },
+         "expr": "sum(ws_connections_active{namespace=~\"$namespace\"})",
+         "legendFormat": "",
+         "refId": "A"
+        }
+       ],
+       "title": "Active WebSocket connections",
+       "type": "stat"
+      },
+      {
+       "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+       },
+       "fieldConfig": {
+        "defaults": {
+         "unit": "ops"
+        },
+        "overrides": []
+       },
+       "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 0
+       },
+       "id": 2,
+       "options": {
+        "colorMode": "value",
+        "reduceOptions": {
+         "calcs": [
+          "lastNotNull"
+         ]
+        }
+       },
+       "targets": [
+        {
+         "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+         },
+         "expr": "sum(rate(ws_messages_total{namespace=~\"$namespace\"}[5m]))",
+         "legendFormat": "",
+         "refId": "A"
+        }
+       ],
+       "title": "Messages per second",
+       "type": "stat"
+      },
+      {
+       "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+       },
+       "fieldConfig": {
+        "defaults": {
+         "unit": "reqps"
+        },
+        "overrides": []
+       },
+       "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 12,
+        "y": 0
+       },
+       "id": 3,
+       "options": {
+        "colorMode": "value",
+        "reduceOptions": {
+         "calcs": [
+          "lastNotNull"
+         ]
+        }
+       },
+       "targets": [
+        {
+         "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+         },
+         "expr": "sum(rate(http_requests_total{namespace=~\"$namespace\"}[5m]))",
+         "legendFormat": "",
+         "refId": "A"
+        }
+       ],
+       "title": "API requests per second",
+       "type": "stat"
+      },
+      {
+       "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+       },
+       "fieldConfig": {
+        "defaults": {
+         "unit": "percentunit"
+        },
+        "overrides": []
+       },
+       "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 0
+       },
+       "id": 4,
+       "options": {
+        "colorMode": "value",
+        "reduceOptions": {
+         "calcs": [
+          "lastNotNull"
+         ]
+        }
+       },
+       "targets": [
+        {
+         "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+         },
+         "expr": "sum(rate(http_requests_total{namespace=~\"$namespace\",status=~\"5..\"}[5m])) / clamp_min(sum(rate(http_requests_total{namespace=~\"$namespace\"}[5m])), 0.000001)",
+         "legendFormat": "",
+         "refId": "A"
+        }
+       ],
+       "title": "API 5xx ratio",
+       "type": "stat"
+      },
+      {
+       "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+       },
+       "fieldConfig": {
+        "defaults": {
+         "unit": "reqps"
+        },
+        "overrides": []
+       },
+       "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 4
+       },
+       "id": 5,
+       "targets": [
+        {
+         "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+         },
+         "expr": "topk(10, sum by (route) (rate(http_requests_total{namespace=~\"$namespace\"}[5m])))",
+         "legendFormat": "{{route}}",
+         "refId": "A"
+        }
+       ],
+       "title": "Requests per second by route",
+       "type": "timeseries"
+      },
+      {
+       "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+       },
+       "fieldConfig": {
+        "defaults": {
+         "unit": "s"
+        },
+        "overrides": []
+       },
+       "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 4
+       },
+       "id": 6,
+       "targets": [
+        {
+         "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+         },
+         "expr": "histogram_quantile(0.95, sum by (le, route) (rate(http_request_duration_seconds_bucket{namespace=~\"$namespace\"}[5m])))",
+         "legendFormat": "{{route}}",
+         "refId": "A"
+        }
+       ],
+       "title": "p95 latency by route",
+       "type": "timeseries"
+      },
+      {
+       "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+       },
+       "fieldConfig": {
+        "defaults": {
+         "unit": "reqps"
+        },
+        "overrides": []
+       },
+       "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 12
+       },
+       "id": 7,
+       "targets": [
+        {
+         "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+         },
+         "expr": "sum by (status) (rate(http_requests_total{namespace=~\"$namespace\",status=~\"[45]..\"}[5m]))",
+         "legendFormat": "{{status}}",
+         "refId": "A"
+        }
+       ],
+       "title": "Client and server errors by status",
+       "type": "timeseries"
+      },
+      {
+       "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+       },
+       "fieldConfig": {
+        "defaults": {
+         "unit": "short"
+        },
+        "overrides": []
+       },
+       "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 12
+       },
+       "id": 8,
+       "targets": [
+        {
+         "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+         },
+         "expr": "sum by (namespace) (ws_connections_active{namespace=~\"$namespace\"})",
+         "legendFormat": "{{namespace}}",
+         "refId": "A"
+        }
+       ],
+       "title": "Active WebSocket connections over time",
+       "type": "timeseries"
+      },
+      {
+       "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+       },
+       "fieldConfig": {
+        "defaults": {
+         "unit": "ops"
+        },
+        "overrides": []
+       },
+       "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 20
+       },
+       "id": 9,
+       "targets": [
+        {
+         "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+         },
+         "expr": "sum by (result) (rate(ws_connection_attempts_total{namespace=~\"$namespace\"}[5m]))",
+         "legendFormat": "{{result}}",
+         "refId": "A"
+        }
+       ],
+       "title": "WebSocket connection attempts by result",
+       "type": "timeseries"
+      },
+      {
+       "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+       },
+       "fieldConfig": {
+        "defaults": {
+         "unit": "ops"
+        },
+        "overrides": []
+       },
+       "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 20
+       },
+       "id": 10,
+       "targets": [
+        {
+         "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+         },
+         "expr": "sum by (namespace) (rate(ws_messages_total{namespace=~\"$namespace\"}[5m]))",
+         "legendFormat": "{{namespace}}",
+         "refId": "A"
+        }
+       ],
+       "title": "Chat messages per second",
+       "type": "timeseries"
+      },
+      {
+       "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+       },
+       "fieldConfig": {
+        "defaults": {
+         "unit": "reqps"
+        },
+        "overrides": []
+       },
+       "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 28
+       },
+       "id": 11,
+       "targets": [
+        {
+         "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+         },
+         "expr": "sum by (envoy_cluster_name, envoy_response_code_class) (rate(envoy_cluster_upstream_rq_xx{envoy_cluster_name=~\"httproute/$namespace/.*\"}[5m]))",
+         "legendFormat": "{{envoy_cluster_name}} {{envoy_response_code_class}}xx",
+         "refId": "A"
+        }
+       ],
+       "title": "Edge (Envoy) requests by route and status class",
+       "type": "timeseries"
+      },
+      {
+       "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+       },
+       "fieldConfig": {
+        "defaults": {
+         "unit": "ms"
+        },
+        "overrides": []
+       },
+       "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 28
+       },
+       "id": 12,
+       "targets": [
+        {
+         "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+         },
+         "expr": "histogram_quantile(0.95, sum by (le, envoy_cluster_name) (rate(envoy_cluster_upstream_rq_time_bucket{envoy_cluster_name=~\"httproute/$namespace/.*\"}[5m])))",
+         "legendFormat": "{{envoy_cluster_name}}",
+         "refId": "A"
+        }
+       ],
+       "title": "Edge (Envoy) p95 latency by route",
+       "type": "timeseries"
+      }
+     ],
+     "refresh": "30s",
+     "schemaVersion": 39,
+     "tags": [
+      "paktech",
+      "application"
+     ],
+     "templating": {
+      "list": [
+       {
+        "current": {
+         "selected": true,
+         "text": [
+          "All"
+         ],
+         "value": [
+          "$__all"
+         ]
+        },
+        "datasource": {
+         "type": "prometheus",
+         "uid": "prometheus"
+        },
+        "definition": "label_values(http_requests_total, namespace)",
+        "includeAll": true,
+        "label": "namespace",
+        "multi": true,
+        "name": "namespace",
+        "query": {
+         "query": "label_values(http_requests_total, namespace)",
+         "refId": "ns"
+        },
+        "refresh": 2,
+        "sort": 1,
+        "type": "query"
+       }
+      ]
+     },
+     "time": {
+      "from": "now-1h",
+      "to": "now"
+     },
+     "timezone": "browser",
+     "title": "PakTech Chat - Application",
+     "uid": "paktech-chat-app",
+     "version": 1
+    }
