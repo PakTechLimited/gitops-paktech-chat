@@ -17,3 +17,7 @@ api:
   autoscaling: {enabled: true, minReplicas: 2, maxReplicas: 3, targetCPUUtilizationPercentage: 70}
 web:
   replicas: 2
+
+# Prometheus scraping of the api (PodMonitor and the allow-prometheus policy)
+metrics:
+  enabled: true
