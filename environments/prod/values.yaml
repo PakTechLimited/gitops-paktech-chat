@@ -10,8 +10,8 @@ networkPolicy:
 azure:
   secretPrefix: prod
 image:
-  api: {tag: "bd0002c", digest: "sha256:e9702804680d032588f7859d862ae450311158ed489143e7228cf1a549200362"}
-  web: {tag: "bd0002c", digest: "sha256:6adffb631b2c16f1f9e9cbbd7fb4728179f359c8f924bec5bd28a5346be0cd63"}
+  api: {tag: "d605c21", digest: "sha256:71dab55e8b28ee523a61ede2be50a607c09ca51c47e83d8baa1dcf9d5bfda3d6"}
+  web: {tag: "d605c21", digest: "sha256:a2d2a146b1e9056289e9369e6730f50b218dea729b781f11c34784bb0879887e"}
 api:
   replicas: 2
   autoscaling: {enabled: true, minReplicas: 2, maxReplicas: 3, targetCPUUtilizationPercentage: 70}
