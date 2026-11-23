@@ -12,3 +12,7 @@ azure:
 image:
   api: {tag: "1b32ad4", digest: "sha256:36be456d930f3a9dab0f6b8b82ff9b6ed27f7c6ffcebe9f266b3a0ef199383a7"}
   web: {tag: "1b32ad4", digest: "sha256:a4f76b277c73a8de8d941d0a5df1e3c0ccfe35c8e77da51c35ace2904f3e024e"}
+
+# Prometheus scraping of the api (PodMonitor and the allow-prometheus policy)
+metrics:
+  enabled: true
