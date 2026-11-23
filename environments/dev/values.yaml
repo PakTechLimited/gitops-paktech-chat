@@ -10,8 +10,8 @@ networkPolicy:
 azure:
   secretPrefix: dev
 image:
-  api: {tag: "1002ffc", digest: "sha256:e23df481937427b36d576838c39b1b835a8a081f32bea0045cc3fc2e4008e1e8"}    # Phase 4 CI rewrites these two lines on every merge
-  web: {tag: "1002ffc", digest: "sha256:f6ffd78914692dc5be66d09d93d64f531c880221afb320cb089188207b900faf"}
+  api: {tag: "225e6e5", digest: "sha256:b85c976a90c4c3e449c64de8619e0d82abd9e4fa11d242d0fc03f328560ecf8d"}    # Phase 4 CI rewrites these two lines on every merge
+  web: {tag: "225e6e5", digest: "sha256:5c672e7040c833307831545ccd92f231cdf38975885cffa26fde8344538e503d"}
 
 metrics:
   enabled: true
