@@ -58,3 +58,7 @@ networkPolicy:
   egress:
     enabled: false            # per environment; dev first
     apiInternetHttps: true    # api may reach the public internet on 443 (AI assistant); false = no internet at all
+
+# Phase 6: Prometheus scraping of the api (/metrics). Needs the monitoring stack; per environment, dev first.
+metrics:
+  enabled: false
