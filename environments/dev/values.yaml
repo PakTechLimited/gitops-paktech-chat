@@ -12,3 +12,6 @@ azure:
 image:
   api: {tag: "1002ffc", digest: "sha256:e23df481937427b36d576838c39b1b835a8a081f32bea0045cc3fc2e4008e1e8"}    # Phase 4 CI rewrites these two lines on every merge
   web: {tag: "1002ffc", digest: "sha256:f6ffd78914692dc5be66d09d93d64f531c880221afb320cb089188207b900faf"}
+
+metrics:
+  enabled: true
