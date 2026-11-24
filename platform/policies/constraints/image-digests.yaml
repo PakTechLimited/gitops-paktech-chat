@@ -1,5 +1,5 @@
-# Every image reference contains @sha256. Expect violations until CI writes digests (layer 3b).
-# Starts in dryrun: violations are recorded on this object (kubectl get k8simagedigests image-digests -o yaml), nothing is rejected.
+# Every image reference contains @sha256. CI writes digests, the chart and the render check enforce them, audit shows 0 violations.
+# Rollout done: dryrun, then warn, then deny (2026-11-24, audit list empty). Violations are recorded on this object (kubectl get k8simagedigests image-digests -o yaml).
 # Order of rollout: dryrun, then warn, then deny, once the audit list is empty.
 apiVersion: constraints.gatekeeper.sh/v1beta1
 kind: K8sImageDigests
@@ -9,7 +9,7 @@ metadata:
     argocd.argoproj.io/sync-wave: "1"
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
 spec:
-  enforcementAction: warn
+  enforcementAction: deny
   match:
     kinds:
       - {apiGroups: [""], kinds: ["Pod"]}
