@@ -1,0 +1,19 @@
+name: render
+on:
+  pull_request:
+    paths:
+      - "charts/**"
+      - "environments/**"
+      - "platform/**"
+      - "scripts/**"
+      - ".github/workflows/render.yml"
+permissions:
+  contents: read
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: helm version --short
+      - run: pip install -q pyyaml==6.0.2
+      - run: bash scripts/render-check.sh
