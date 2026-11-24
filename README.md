@@ -70,4 +70,4 @@ pip install pyyaml && bash scripts/render-check.sh
 - Base-image digests never move on their own. [docs/base-image-digests.md](docs/base-image-digests.md) describes the rule: adopt a new digest only if its Trivy scan is not worse. `scripts/base-image-digests.sh` compares each pin with the current tag.
 - `scripts/egress-test.sh <namespace>` runs a before-and-after egress check from inside the pods.
 - Refresh order in Argo CD: refresh `root` first, then the child application.
-- The lab cluster is stopped between working sessions: `az aks stop` and `az aks start` on `aks-paktech-prod`.
+- The lab cluster was decommissioned in November 2026. To rebuild it, apply the Terraform in `app-paktech-chat`, then bootstrap Argo CD so it syncs the `root` application from this repository.
