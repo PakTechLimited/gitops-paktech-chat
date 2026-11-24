@@ -55,3 +55,20 @@ of the same major version is safe in both directions.
 
 A major version change (for example postgres 16 to 17) is not a digest bump. It needs a dump
 and restore or `pg_upgrade`, planned separately.
+
+## Worked examples
+
+### 2026-11-24: newer digest, same scan, no bump
+
+`scripts/base-image-digests.sh` reported a newer digest for `postgres:16-alpine`
+(`f2f98726...`, pinned `1d5b02d3...`). Trivy (HIGH and CRITICAL) gave identical
+results for both: alpine 3.24.4, 26 HIGH, 1 CRITICAL, same packages (libxml2 and the
+Go stdlib in gosu). Decision: keep the pin. A bump would restart PostgreSQL in all three
+environments for no security gain. Revisit when a digest scans better.
+
+### 2026-11-24: proving the migrate Job waits for PostgreSQL
+
+On dev, the migrate Job was deleted and the PostgreSQL StatefulSet restarted at the same
+time, then Argo CD was synced. The migrate pod stayed in `Init:0/1` for about 23 seconds
+(the `wait-for-postgres` init container), then went PodInitializing, Running and
+Completed in 45 seconds, with no restarts and no failed attempts.
