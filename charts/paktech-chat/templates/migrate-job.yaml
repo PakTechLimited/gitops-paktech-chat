@@ -27,6 +27,27 @@ spec:
       {{- if .Values.hardening.disableTokenAutomount }}
       automountServiceAccountToken: false
       {{- end }}
+      # Wait until PostgreSQL accepts connections, so a cold start does not use up the Job retries.
+      initContainers:
+        - name: wait-for-postgres
+          image: {{ .Values.postgres.image }}
+          command:
+            - sh
+            - -c
+            - |
+              for i in $(seq 1 60); do
+                pg_isready -h postgres -p 5432 -U "$POSTGRES_USER" -d "$POSTGRES_DB" && exit 0
+                sleep 2
+              done
+              echo "PostgreSQL did not accept connections within 120 seconds" >&2
+              exit 1
+          env:
+            - {name: POSTGRES_DB, value: {{ .Values.config.postgresDb | quote }}}
+            - {name: POSTGRES_USER, value: {{ .Values.config.postgresUser | quote }}}
+          resources:
+            requests: {cpu: 10m, memory: 16Mi}
+            limits:   {memory: 64Mi}
+          {{- include "pc.containerSecurity" . | nindent 10 }}
       containers:
         - name: migrate
           image: {{ include "pc.image" (dict "root" . "name" "api") }}
